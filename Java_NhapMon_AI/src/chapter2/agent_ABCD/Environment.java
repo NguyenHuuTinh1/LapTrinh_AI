@@ -3,9 +3,14 @@ package chapter2.agent_ABCD;
 public class Environment {
 	public static final Action MOVE_LEFT = new DynamicAction("LEFT");
 	public static final Action MOVE_RIGHT = new DynamicAction("RIGHT");
+	public static final Action MOVE_UP = new DynamicAction("UP");
+	public static final Action MOVE_DOW = new DynamicAction("DOW");
 	public static final Action SUCK_DIRT = new DynamicAction("SUCK");
 	public static final String LOCATION_A = "A";
 	public static final String LOCATION_B = "B";
+	public static final String LOCATION_C = "C";
+	public static final String LOCATION_D = "D";
+	public static int score = 0;
 
 	public enum LocationState {
 		CLEAN, DIRTY
@@ -15,8 +20,9 @@ public class Environment {
 	private boolean isDone = false;// all squares are CLEAN
 	private Agent agent = null;
 
-	public Environment(LocationState locAState, LocationState locBState) {
-		envState = new EnvironmentState(locAState, locBState);
+	public Environment(LocationState locAState, LocationState locBState, LocationState locCState,
+			LocationState locDState) {
+		envState = new EnvironmentState(locAState, locBState, locCState, locDState);
 	}
 
 	// add an agent into the enviroment
@@ -35,11 +41,56 @@ public class Environment {
 		if (action == SUCK_DIRT) {
 			String agentLocation = envState.getAgentLocation();
 			envState.setLocationState(agentLocation, LocationState.CLEAN);
-		} else if (action == MOVE_LEFT) {
-			envState.setAgentLocation(LOCATION_A);
-		} else if (action == MOVE_RIGHT) {
-			envState.setAgentLocation(LOCATION_B);
-		} 
+			this.score += 500;
+		} else if (envState.getAgentLocation().equals(LOCATION_A)) {
+			if (action == MOVE_LEFT || action == MOVE_UP) {
+				this.score -= 100;
+
+			} else {
+				this.score -= 10;
+				if (action == MOVE_RIGHT) {
+					envState.setAgentLocation(LOCATION_B);
+				} else {
+					envState.setAgentLocation(LOCATION_C);
+				}
+			}
+		} else if (envState.getAgentLocation().equals(LOCATION_B)) {
+			if (action == MOVE_RIGHT || action == MOVE_UP) {
+				this.score -= 100;
+			} else {
+				this.score -= 10;
+				if (action == MOVE_LEFT) {
+					envState.setAgentLocation(LOCATION_A);
+				} else {
+					
+				envState.setAgentLocation(LOCATION_D);
+				}
+			}
+		} else if (envState.getAgentLocation().equals(LOCATION_C)) {
+			if (action == MOVE_LEFT || action == MOVE_DOW) {
+				this.score -= 100;
+			} else {
+				this.score -= 10;
+				if (action == MOVE_RIGHT) {
+					envState.setAgentLocation(LOCATION_D);
+				} else {
+					
+				envState.setAgentLocation(LOCATION_A);
+				}
+			}
+		} else if (envState.getAgentLocation().equals(LOCATION_D)) {
+			if (action == MOVE_RIGHT || action == MOVE_DOW) {
+				this.score -= 100;
+			} else {
+				this.score -= 10;
+				if (action == MOVE_LEFT) {
+					envState.setAgentLocation(LOCATION_C);
+				} else {
+					
+				envState.setAgentLocation(LOCATION_B);
+			}
+			}
+		}
 		return envState;
 	}
 
@@ -59,7 +110,7 @@ public class Environment {
 		Action anAction = agent.execute(getPerceptSeenBy());
 		EnvironmentState es = executeAction(anAction);
 
-		System.out.println("Agent Loc.: " + agentLocation + "\tAction: " + anAction);
+		System.out.println("Agent Loc.: " + agentLocation + "\tAction: " + anAction + "\tScore: " + score);
 
 		if ((es.getLocationState(LOCATION_A) == LocationState.CLEAN)
 				&& (es.getLocationState(LOCATION_B) == LocationState.CLEAN))
